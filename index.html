@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LL Locks and Keys — Security Solutions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a1a1a;
+            --secondary: #f5a623;
+            --accent: #ffffff;
+            --light-bg: #f9f9f9;
+            --border: #e0e0e0;
+            --text: #333333;
+            --text-light: #666666;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--accent);
+        }
+
+        /* Header & Navigation */
+        header {
+            background: var(--primary);
+            color: var(--accent);
+            padding: 2rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-sub {
+            font-size: 0.75rem;
+            font-weight: 400;
+            opacity: 0.8;
+        }
+
+        nav a {
+            color: var(--accent);
+            text-decoration: none;
+            margin-left: 2rem;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--secondary);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, #2d2d2d 100%);
+            color: var(--accent);
+            padding: 6rem 2rem;
+            text-align: center;
+        }
+
+        .hero-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--secondary);
+            color: var(--primary);
+            padding: 1rem 2rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin: 0.5rem;
+        }
+
+        .cta-button:hover {
+            background: #e89a1f;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(245, 166, 35, 0.3);
+        }
+
+        .cta-button.secondary {
+            background: transparent;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+        }
+
+        .cta-button.secondary:hover {
+            background: var(--secondary);
+            color: var(--primary);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Section Styling */
+        section {
+            padding: 5rem 2rem;
+        }
+
+        section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        section > p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 3rem;
+            max-width: 600px;
+        }
+
+        /* Services Grid */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .service-card {
+            background: var(--light-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+            transition: all 0.3s;
+        }
+
+        .service-card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            transform: translateY(-4px);
+        }
+
+        .service-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .service-card ul {
+            list-style: none;
+        }
+
+        .service-card li {
+            padding: 0.5rem 0;
+            color: var(--text-light);
+        }
+
+        .service-card li:before {
+            content: "→ ";
+            color: var(--secondary);
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        /* Gallery Sections */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .gallery-item {
+            background: var(--light-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .gallery-item:hover {
+            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+            transform: scale(1.02);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .gallery-item-info {
+            padding: 1.5rem;
+        }
+
+        .gallery-item-info h4 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .gallery-item-info p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Pricing Table */
+        .pricing-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+            background: var(--accent);
+        }
+
+        .pricing-table th {
+            background: var(--primary);
+            color: var(--accent);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .pricing-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .pricing-table tr:hover {
+            background: var(--light-bg);
+        }
+
+        /* Testimonials */
+        .testimonial {
+            background: var(--light-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .testimonial p {
+            color: var(--text-light);
+            font-size: 1.05rem;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .testimonial-author {
+            color: var(--text);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Contact Form */
+        .contact-form {
+            max-width: 600px;
+            margin-top: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.1);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--primary);
+            color: var(--accent);
+            padding: 3rem 2rem;
+            margin-top: 5rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+
+        .footer-section a {
+            display: block;
+            color: var(--accent);
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: var(--secondary);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 2rem;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            nav a {
+                margin-left: 1rem;
+                font-size: 0.85rem;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            section {
+                padding: 3rem 1rem;
+            }
+
+            section h2 {
+                font-size: 2rem;
+            }
+
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Section Alternating Background */
+        section:nth-child(even) {
+            background: var(--light-bg);
+        }
+
+        /* Highlight Box */
+        .highlight-box {
+            background: linear-gradient(135deg, var(--secondary), #f5a623);
+            color: var(--primary);
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div>
+                <div class="logo">🔐 LL Locks & Keys</div>
+                <div class="logo-sub">Security Solutions</div>
+            </div>
+            <nav>
+                <a href="#services">Services</a>
+                <a href="#products">Products</a>
+                <a href="#showcase">Showcase</a>
+                <a href="#pricing">Rates</a>
+                <a href="#contact">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-container">
+            <h1>Locked Out? We're On Our Way</h1>
+            <p>24/7 emergency locksmith services • Fast response • Professional solutions</p>
+            <a href="#contact" class="cta-button">Get Immediate Help</a>
+            <a href="tel:0796219732" class="cta-button secondary">Call 0796 219 732</a>
+        </div>
+    </div>
+
+    <!-- Why Choose Us -->
+    <section id="why-us">
+        <div class="container">
+            <h2>Why Choose LL Locks & Keys?</h2>
+            <p>Trusted by Nairobi residents and businesses since day one. Professional, reliable, available 24/7.</p>
+            
+            <div class="services-grid">
+                <div class="service-card">
+                    <h3>⚡ Fast Response</h3>
+                    <p>Average response time: ~20 minutes. We're based locally in Zimmerman, Zebra.</p>
+                </div>
+                <div class="service-card">
+                    <h3>🔓 All Lock Types</h3>
+                    <p>From house keys to car transponders, master systems to smart locks — we handle it all.</p>
+                </div>
+                <div class="service-card">
+                    <h3>✓ Guaranteed Work</h3>
+                    <p>Every key is tested in the actual lock before you leave. Full workmanship guarantee.</p>
+                </div>
+                <div class="service-card">
+                    <h3>🕐 24/7 Emergency</h3>
+                    <p>Locked out at midnight? We're here. Emergency call-out available any time, any day.</p>
+                </div>
+                <div class="service-card">
+                    <h3>💡 Expert Advice</h3>
+                    <p>Free security consultation. We'll walk your property and recommend the right solution.</p>
+                </div>
+                <div class="service-card">
+                    <h3>📦 Stock On Hand</h3>
+                    <p>Blanks, hardware, padlocks, cylinders — browse our stock, no appointment needed.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services -->
+    <section id="services">
+        <div class="container">
+            <h2>Full-Service Locksmith & Key Care</h2>
+            <p>Everything your home, office, or vehicle needs — from emergency lockouts to complete master key systems.</p>
+
+            <div class="services-grid">
+                <div class="service-card">
+                    <h3>🔑 Key Services</h3>
+                    <ul>
+                        <li>Key Cutting & Duplication</li>
+                        <li>Lost Key Replacement</li>
+                        <li>Master Key Systems</li>
+                        <li>Specialized Key Types</li>
+                    </ul>
+                </div>
+                <div class="service-card">
+                    <h3>🚪 Lock Services</h3>
+                    <ul>
+                        <li>Lock Installation</li>
+                        <li>Lock Repair & Maintenance</li>
+                        <li>High-Security Locks</li>
+                        <li>Smart Lock Setup</li>
+                    </ul>
+                </div>
+                <div class="service-card">
+                    <h3>🆘 Emergency Services</h3>
+                    <ul>
+                        <li>House Lockouts</li>
+                        <li>Car Lockouts</li>
+                        <li>Office Lockouts</li>
+                        <li>24/7 Dispatch</li>
+                    </ul>
+                </div>
+                <div class="service-card">
+                    <h3>🔒 Safe Services</h3>
+                    <ul>
+                        <li>Safe Opening</li>
+                        <li>Safe Installation</li>
+                        <li>Combination Reset</li>
+                        <li>Secure Storage Setup</li>
+                    </ul>
+                </div>
+                <div class="service-card">
+                    <h3>🏠 Security Consultation</h3>
+                    <ul>
+                        <li>Property Walkthrough</li>
+                        <li>Weakness Assessment</li>
+                        <li>Custom Solutions</li>
+                        <li>Budget-Friendly Options</li>
+                    </ul>
+                </div>
+                <div class="service-card">
+                    <h3>🛠️ Hardware Sales</h3>
+                    <ul>
+                        <li>Key Blanks</li>
+                        <li>Padlocks</li>
+                        <li>Lock Cylinders</li>
+                        <li>Professional Hardware</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Showcase -->
+    <section id="products">
+        <div class="container">
+            <h2>Hardware & Lock Products</h2>
+            <p>Browse our selection of premium locks, handles, and security hardware. All items tested and professionally installed.</p>
+
+            <div class="gallery">
+                <div class="gallery-item">
+                    <img src="1000860809.jpg" alt="Decorative wooden door handles">
+                    <div class="gallery-item-info">
+                        <h4>Ornamental Door Handles</h4>
+                        <p>Premium brass and wooden finish door handles for residential and commercial doors.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="1000860810.jpg" alt="Mortise lock installation">
+                    <div class="gallery-item-info">
+                        <h4>Mortise Lock Systems</h4>
+                        <p>Professional-grade mortise locks for secure door locking and smooth operation.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="1000860811.jpg" alt="Luxury wooden double doors with gold handles">
+                    <div class="gallery-item-info">
+                        <h4>Premium Double Door Set</h4>
+                        <p>High-end wooden doors with decorative brass hardware and security features.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="1000860812.jpg" alt="Display model door lock">
+                    <div class="gallery-item-info">
+                        <h4>Display Door Lock Demo</h4>
+                        <p>Functional demo model showing internal lock mechanisms and installation.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="1000860813.jpg" alt="Door handle and lock detail">
+                    <div class="gallery-item-info">
+                        <h4>Handle & Lock Assembly</h4>
+                        <p>Complete door handle and lock system with keys and mounting hardware.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="1000860814.jpg" alt="Decorative door pulls">
+                    <div class="gallery-item-info">
+                        <h4>Decorative Door Pulls</h4>
+                        <p>Stylish brass door pulls compatible with mortise lock systems.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="1000860815.jpg" alt="Door latch mechanism">
+                    <div class="gallery-item-info">
+                        <h4>Door Latch & Mechanism</h4>
+                        <p>Professional mortise latch system with adjustable backset options.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="1000860816.jpg" alt="Display door hardware">
+                    <div class="gallery-item-info">
+                        <h4>Hardware Display Unit</h4>
+                        <p>Showroom display featuring complete lock and handle assembly options.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="1000860817.jpg" alt="Handle with mortise lock">
+                    <div class="gallery-item-info">
+                        <h4>Mortise Handle Assembly</h4>
+                        <p>Complete handle and mortise lock combination for standard door installation.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="1000860818.jpg" alt="Lever handle">
+                    <div class="gallery-item-info">
+                        <h4>Modern Lever Handle</h4>
+                        <p>Contemporary lever-style door handle with brushed steel finish.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="1000860819.jpg" alt="Multi-point locking">
+                    <div class="gallery-item-info">
+                        <h4>Multi-Point Lock System</h4>
+                        <p>Advanced locking system for enhanced security on double and heavy doors.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="1000860820.jpg" alt="Electronic door lock">
+                    <div class="gallery-item-info">
+                        <h4>Smart Lock Display</h4>
+                        <p>Modern electronic lock system with keypad and emergency mechanical key override.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="1000860821.jpg" alt="Antique elephant door handle">
+                    <div class="gallery-item-info">
+                        <h4>Decorative Elephant Handle</h4>
+                        <p>Artistic brass pull handle with elephant-head design for luxury installations.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="1000860822.jpg" alt="Door knob with lock">
+                    <div class="gallery-item-info">
+                        <h4>Door Knob Lock Set</h4>
+                        <p>Classic round knob with integrated privacy and security locking mechanism.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="1000860823.jpg" alt="Hardware fixture">
+                    <div class="gallery-item-info">
+                        <h4>Brass Fixture Set</h4>
+                        <p>Decorative brass plate and pull system for premium door installations.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="1000860824.jpg" alt="Lock demonstration model">
+                    <div class="gallery-item-info">
+                        <h4>Lock Mechanism Demo</h4>
+                        <p>Educational model showing how mortise locks function and are installed.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="1000860876.jpg" alt="Digital door handle">
+                    <div class="gallery-item-info">
+                        <h4>Digital Smart Handle</h4>
+                        <p>Biometric-ready smart door handle with modern design and security features.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="1000860877.jpg" alt="WISTA lock display">
+                    <div class="gallery-item-info">
+                        <h4>WISTA Premium Lock</h4>
+                        <p>High-security premium mortise lock system with reinforced mechanism.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="1000860878.jpg" alt="Security lock showcase">
+                    <div class="gallery-item-info">
+                        <h4>Security Lock Showcase</h4>
+                        <p>Complete security locking system for commercial and high-security applications.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="1000860879.jpg" alt="Mortise lock specimen">
+                    <div class="gallery-item-info">
+                        <h4>Mortise Lock Specimen</h4>
+                        <p>Premium mortise lock specimen showing advanced internal security features.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Showcase -->
+    <section id="showcase">
+        <div class="container">
+            <h2>Real Jobs, Real Sites</h2>
+            <p>See our hardware and security solutions in action across residential and commercial installations in Nairobi.</p>
+            
+            <div class="highlight-box">
+                <strong>🏆 Quality Guarantee:</strong> Every lock is tested, every key is verified, and every installation is backed by our professional guarantee.
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section id="pricing">
+        <div class="container">
+            <h2>Shop Rates & Pricing</h2>
+            <p>Transparent pricing for all services. Restricted keyways and emergency calls may be at the higher end — we'll quote the exact price before cutting.</p>
+
+            <table class="pricing-table">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Typical Range (KSh)</th>
+                        <th>Turnaround</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Standard house / padlock key</td>
+                        <td>100 – 300</td>
+                        <td>While you wait</td>
+                    </tr>
+                    <tr>
+                        <td>High-security / restricted key</td>
+                        <td>500 – 1,500</td>
+                        <td>Same day</td>
+                    </tr>
+                    <tr>
+                        <td>Lock installation / replacement</td>
+                        <td>800 – 3,000</td>
+                        <td>Same day</td>
+                    </tr>
+                    <tr>
+                        <td>Lock rekey (per cylinder)</td>
+                        <td>500 – 1,200</td>
+                        <td>Same day</td>
+                    </tr>
+                    <tr>
+                        <td>Smart lock installation</td>
+                        <td>3,500 – 12,000</td>
+                        <td>Same day</td>
+                    </tr>
+                    <tr>
+                        <td>Master key system (per property)</td>
+                        <td>Custom quote</td>
+                        <td>2–5 days</td>
+                    </tr>
+                    <tr>
+                        <td>Safe opening</td>
+                        <td>2,000 – 6,000</td>
+                        <td>Dispatched on call</td>
+                    </tr>
+                    <tr>
+                        <td>Safe installation</td>
+                        <td>Custom quote</td>
+                        <td>By appointment</td>
+                    </tr>
+                    <tr>
+                        <td>Emergency lockout (24/7)</td>
+                        <td>1,000 – 3,000 + key cost</td>
+                        <td>Dispatched on call</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section id="testimonials">
+        <div class="container">
+            <h2>What Customers Say</h2>
+            <p>Real feedback from real clients in Nairobi.</p>
+
+            <div class="testimonial">
+                <p>"Locked out at 11pm with a toddler asleep in the car seat — someone was at my door in twenty minutes with a cut key in hand."</p>
+                <div class="testimonial-author">— Emergency lockout, residential</div>
+            </div>
+
+            <div class="testimonial">
+                <p>"Dealership quoted me a week and massive fees for a smart key. Got it same-day here for less, and they explained exactly what the chip does."</p>
+                <div class="testimonial-author">— Smart key replacement, Westlands</div>
+            </div>
+
+            <div class="testimonial">
+                <p>"Rekeyed every lock in the house after we moved in. Fast, no upsell pressure, and they showed me how to spot a worn key myself."</p>
+                <div class="testimonial-author">— Full-home rekey, Zimmerman</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact">
+        <div class="container">
+            <h2>Get a Quote</h2>
+            <p>Tell us what you need — key cutting, lock installation, emergency lockout, or security consultation.</p>
+
+            <div class="contact-form">
+                <form onsubmit="handleSubmit(event)">
+                    <div class="form-group">
+                        <label for="name">Your Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" placeholder="0796 219 732" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="service">Service Needed</label>
+                        <select id="service" name="service" required>
+                            <option value="">Select a service...</option>
+                            <option value="key-cutting">Key Cutting / Duplication</option>
+                            <option value="lockout">Emergency Lockout</option>
+                            <option value="lock-install">Lock Installation</option>
+                            <option value="lock-repair">Lock Repair / Maintenance</option>
+                            <option value="smart-lock">Smart Lock Setup</option>
+                            <option value="master-key">Master Key System</option>
+                            <option value="safe">Safe Services</option>
+                            <option value="consultation">Security Consultation</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="details">Details</label>
+                        <textarea id="details" name="details" placeholder="Tell us more about what you need..."></textarea>
+                    </div>
+
+                    <button type="submit" class="cta-button">Send Quote Request</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>🔐 LL Locks & Keys</h4>
+                <p>Professional locksmith services, security solutions, and 24/7 emergency lockout assistance in Nairobi.</p>
+            </div>
+
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <a href="#services">Services</a>
+                <a href="#products">Products</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#contact">Contact</a>
+            </div>
+
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <a href="tel:0796219732">📞 0796 219 732</a>
+                <a href="https://wa.me/254796219732">💬 WhatsApp</a>
+                <p>Zimmerman, Zebra — Nairobi<br>Mon–Sat 8:00am – 7:00pm<br>24/7 Emergency Line</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© LL Locks and Keys Security Solutions. All rights reserved. Built with ❤️</p>
+        </div>
+    </footer>
+
+    <script>
+        function handleSubmit(event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const service = document.getElementById('service').value;
+            const details = document.getElementById('details').value;
+            
+            const message = `Hi, I'm ${name}. I need help with: ${service}. Details: ${details}`;
+            const whatsappUrl = `https://wa.me/254796219732?text=${encodeURIComponent(message)}`;
+            
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href !== '#') {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
